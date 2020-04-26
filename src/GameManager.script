@@ -1,0 +1,49 @@
+Tiny = require 'lib.tiny'
+Systems = {
+	TargetToMouse = require 'src.systems.TargetToMouse'
+}
+World = Tiny.world(Systems.TargetToMouse)
+
+
+--  create system filters
+local drawFilter = Tiny.requireAll('isDrawSystem')
+local drawGuiFilter = Tiny.requireAll('isDrawGuiSystem')
+local updateFilter = Tiny.rejectAny('isDrawSystem','isDrawGuiSystem')
+
+MousePosition = vmath.vector3(0, 0, 0)
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	World:addEntity({isPlayer=true,objId='Vittor', speed = 100})
+	World:addEntity({isPlayer=true,objId='Grandpa', speed = 50})
+	-- Add initialization code here
+	-- Remove this function if not needed
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	World:update(dt,updateFilter)
+	-- Add update code here
+	-- Remove this function if not needed
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	-- Remove this function if not needed
+end
+
+function on_input(self, action_id, action)
+	MousePosition.x = action.x
+	MousePosition.y = action.y
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end
