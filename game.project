@@ -1,12 +1,12 @@
 [bootstrap]
-main_collection = /main/main.collectionc
+main_collection = /main/Scenes/start_screen.collectionc
 
 [script]
 shared_state = 1
 
 [display]
-width = 960
-height = 640
+width = 640
+height = 336
 
 [android]
 input_method = HiddenInputField
