@@ -15,3 +15,6 @@ input_method = HiddenInputField
 title = TestOne
 dependencies = https://github.com/britzl/defold-metrics/archive/master.zip
 
+[sprite]
+max_count = 512
+

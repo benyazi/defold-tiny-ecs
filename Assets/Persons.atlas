@@ -1,9 +1,9 @@
 images {
-  image: "/Assets/mainmenu.png"
+  image: "/Assets/grandpa_t.png"
   sprite_trim_mode: SPRITE_TRIM_MODE_OFF
 }
 images {
-  image: "/Assets/Square_001.png"
+  image: "/Assets/vittor_t.png"
   sprite_trim_mode: SPRITE_TRIM_MODE_OFF
 }
 margin: 0

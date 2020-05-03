@@ -1,4 +1,7 @@
 function init(self)
+	msg.post(".", "acquire_input_focus")
+	self.levelLoading = nil
+	print('Initied')
 	-- Add initialization code here
 	-- Remove this function if not needed
 end
@@ -13,18 +16,25 @@ function update(self, dt)
 	-- Remove this function if not needed
 end
 
-function start_game()
+function start_game(self)
+	self.levelLoading = "#proxy_level_json"
 	print('Start game')
-	msg.post("main/main#proxy", "async_load")
+	msg.post("#proxy_level_json", "load")
 end
 
 function on_message(self, message_id, message, sender)
+	if message_id == hash("proxy_loaded") and self.levelLoading then
+		-- New world is loaded. Init and enable it.
+		msg.post('#sprite_background', 'disable')
+		msg.post(sender, "init")
+		msg.post(sender, "enable")
+	end
 end
 
 function on_input(self, action_id, action)
-	print('action ' .. action_id)
-	if action_id == hash("start_game") then
-		start_game()
+	-- print('action ' .. action_id)
+	if action_id == hash("start_game") and self.levelLoading == nil then
+		start_game(self)
 	end
 end
 

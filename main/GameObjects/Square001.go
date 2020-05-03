@@ -1,14 +1,14 @@
 embedded_components {
-  id: "sprite"
+  id: "sprite_square_001"
   type: "sprite"
-  data: "tile_set: \"/Assets/Persons.atlas\"\n"
-  "default_animation: \"vittor_t\"\n"
+  data: "tile_set: \"/Assets/background.atlas\"\n"
+  "default_animation: \"Square_001\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
   "blend_mode: BLEND_MODE_ALPHA\n"
   ""
   position {
     x: 0.0
-    y: 16.0
+    y: 0.0
     z: 0.0
   }
   rotation {
