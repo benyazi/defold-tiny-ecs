@@ -1,0 +1,42 @@
+function init(self)
+	-- Add initialization code here
+	-- Remove this function if not needed
+	generatePersons(self)
+end
+
+PLAYERS = {}
+function generatePersons(self)
+	local pos = go.get_position()
+	pos.x = pos.x + 32
+	local block_id = factory.create("#VittorFactory", pos)
+	ACTIVE_PLAYER_ID = block_id
+	PLAYERS[1] = block_id
+	pos.x = pos.x + 32
+	block_id = factory.create("#GrandpaFactory", pos)
+	PLAYERS[2] = block_id
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	-- Add update code here
+	-- Remove this function if not needed
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	-- Remove this function if not needed
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

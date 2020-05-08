@@ -6,12 +6,32 @@ end
 
 function generateBlocks(self)
 	local pos = go.get_position()
-	for i = 1, 20 do
-		for j = 1, 10 do
-			local blockPos = vmath.vector3(pos.x + i*32, pos.y + j*32, pos.z)
-			local block_id = factory.create("#blockFactory", blockPos)
+	local w = 20
+	local h = 10
+	for ly = 0, h -1  do
+		for lx = 0, w - 1 do
+			-- if LEVEL_MAP[j] == nil then 
+			-- 	LEVEL_MAP[j] = {}
+			-- end
+			local val = 2
+			if math.random(0,5) < 2 and lx > 1 and ly > 1 then 
+				val = 0
+			end
+			if ly == 3 and lx < 8 then 
+				-- val = 0 
+			end
+			
+			LEVEL_MAP[ly * w + lx + 1] = val
+			coord_x, coord_y = utils:coords_to_screen(lx, ly)
+			local blockPos = vmath.vector3(coord_x, coord_y, pos.z)
+			if val == 2 then 
+				local block_id = factory.create("#blockFactory", blockPos)
+			else
+				local block_id = factory.create("#blockFactoryWall", blockPos)
+			end
 		end
 	end
+	msg.post('/levelManagerObj#LevelManager', 'blocks_generated')
 end
 
 function final(self)

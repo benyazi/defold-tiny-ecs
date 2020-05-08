@@ -1,0 +1,147 @@
+LEVEL_MAP = {}
+
+local map_width = 20
+local map_height = 10
+local direction = astar.DIRECTION_FOUR
+local allocate = map_width * map_height
+local typical_adjacent = 20
+local cache = true
+local utils = require("lib/utils")
+function init(self)
+	msg.post(".", "acquire_input_focus")
+end
+
+ACTIVE_PLAYER_ID = nil
+
+function setMap()
+	print('Set map size ' .. #LEVEL_MAP)
+	-- for i, v in ipairs(LEVEL_MAP) do
+	-- 	local line = ''
+	-- 	for j, val in ipairs(LEVEL_MAP[i]) do
+	-- 		line = line .. '-' .. val
+	-- 	end
+	-- 	print('Line '.. i .. ' > ' .. line)
+	-- end
+	astar.setup(map_width, map_height, direction, allocate, typical_adjacent, cache)
+	astar.set_map(LEVEL_MAP)
+	local costs = {
+		[1] = {
+			1,
+			1,
+			1,
+			1
+		},
+		[2] = {
+			1,
+			1,
+			1,
+			1
+		}
+	}
+	astar.set_costs(costs)
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+local redBLock = {}
+function clearBlocks(self)
+	for i, v in ipairs(redBLock) do
+		go.delete(v)
+	end	
+	redBLock = {}
+end
+
+local ACTIVEPATH = nil
+local PATHIDEX = nil
+local isGoing = false
+
+function clearPath(self)
+	clearBlocks(self)
+	ACTIVEPATH = nil
+	PATHIDEX = nil
+end
+
+function calculateWay(self, start_x, start_y, end_x, end_y)
+	clearPath(self)
+	local result, size, total_cost, path = astar.solve(start_x, start_y, end_x, end_y)
+	if result == astar.SOLVED then
+		print("SOLVED")
+		for i, v in ipairs(path) do
+			print("Tile #" .. i .. ": ", v.x .. "-" .. v.y)
+			local posX, posY = utils:coords_to_screen(v.x, v.y)
+			local blockPos = vmath.vector3(posX, posY, 1)
+			local block_id = factory.create("/BlockSpawner#blockFactoryRed", blockPos)
+			redBLock[#redBLock+1] = block_id
+			ACTIVEPATH = path
+		end
+	elseif result == astar.NO_SOLUTION then
+		print("NO_SOLUTION")
+	elseif result == astar.START_END_SAME then
+		print("START_END_SAME")
+	end
+end
+
+local stepTimer = 0
+function goByPath(self, dt)
+	if stepTimer < 0 then 
+		stepTimer = 0.25
+		if PATHIDEX == nil then
+			PATHIDEX = 0
+		end 
+		PATHIDEX = PATHIDEX + 1
+		if ACTIVEPATH[PATHIDEX] == nil then 
+			isGoing = false
+			clearPath(self)
+			return
+		end
+		local playerPosition = go.get(ACTIVE_PLAYER_ID, 'position')
+		local posX, posY = utils:coords_to_screen(ACTIVEPATH[PATHIDEX].x, ACTIVEPATH[PATHIDEX].y)
+		playerPosition.x, playerPosition.y = posX, posY
+		go.set(ACTIVE_PLAYER_ID, 'position', playerPosition)
+	else
+		stepTimer = stepTimer - dt 
+	end
+end
+
+function update(self, dt)
+	if isGoing then 
+		goByPath(self, dt)
+	end
+	-- Add update code here
+	-- Remove this function if not needed
+end
+
+function on_message(self, message_id, message, sender)
+	print('msg received '..message_id);
+	if message_id == hash("blocks_generated") then 
+		setMap()
+	end
+end
+
+function on_input(self, action_id, action)
+	-- if action_id then print('press '.. action_id) end
+	if action_id == hash("touch") and action.pressed and isGoing == false then 
+		print('Touxh ' .. action.x .. ' x ' .. action.y)
+		local posX, posY = utils:screen_to_coords(action.x,action.y)
+		print('Tiles ' .. (posX) .. ' x ' .. (posY))
+		local playerPosition = go.get(ACTIVE_PLAYER_ID, 'position')
+		local startX, startY = utils:screen_to_coords(playerPosition.x,playerPosition.y)
+		calculateWay(self, startX, startY, posX, posY)
+	elseif action_id == hash("go_btn") and action.pressed and isGoing == false and ACTIVEPATH then
+		isGoing = true
+	elseif action_id == hash("btn_1") and action.pressed and isGoing == false then
+		clearPath(self)
+		ACTIVE_PLAYER_ID = PLAYERS[1]
+	elseif action_id == hash("btn_2") and action.pressed and isGoing == false then
+		clearPath(self)
+		ACTIVE_PLAYER_ID = PLAYERS[2]
+	end
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

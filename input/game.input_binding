@@ -6,7 +6,23 @@ key_trigger {
   input: KEY_SPACE
   action: "space_trigger"
 }
+key_trigger {
+  input: KEY_SPACE
+  action: "go_btn"
+}
+key_trigger {
+  input: KEY_1
+  action: "btn_1"
+}
+key_trigger {
+  input: KEY_2
+  action: "btn_2"
+}
 mouse_trigger {
   input: MOUSE_BUTTON_1
   action: "touch"
+}
+mouse_trigger {
+  input: MOUSE_BUTTON_LEFT
+  action: "btn_left"
 }
