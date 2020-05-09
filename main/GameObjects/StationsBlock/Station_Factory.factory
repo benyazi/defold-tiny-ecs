@@ -1,0 +1,2 @@
+prototype: "/main/GameObjects/StationsBlock/Station.go"
+load_dynamically: false

@@ -1,5 +1,5 @@
 LEVEL_MAP = {}
-
+-- local render_helper = require "orthographic.render.helper"
 local map_width = 20
 local map_height = 10
 local direction = astar.DIRECTION_FOUR
@@ -7,14 +7,122 @@ local allocate = map_width * map_height
 local typical_adjacent = 20
 local cache = true
 local utils = require("lib/utils")
+local camera = require "orthographic.camera"
+local PROJECTIONS = {
+	{ name = "Default", id = camera.PROJECTOR.DEFAULT },
+	{ name = "Fixed Auto", id = camera.PROJECTOR.FIXED_AUTO },
+	{ name = "Fixed Zoom", id = camera.PROJECTOR.FIXED_ZOOM },
+}
+
 function init(self)
+	self.current_projection = 1
+	self.bounds_enabled = false
+	self.deadzone_enabled = false
+	self.current_projection = 1
+	self.lerp = 0
+	-- render_helper.init()
+	loadBlockTypes(self)
+	loadLevel(self)
 	msg.post(".", "acquire_input_focus")
+	-- camera.follow("/MainCamera#MainCamera", target, 0.7)
+	msg.post("#", "use_projector")
+	msg.post(CAMERA_ID, camera.MSG_ENABLE)
+end
+local BLOCK_TYPES = nil
+function loadBlockTypes(self)
+	local jsonstring = sys.load_resource("/maps/blockTypes.json")
+	BLOCK_TYPES = json.decode(jsonstring)
+	-- pprint(data)
+end
+
+function loadLevel(self)
+	local jsonstring = sys.load_resource("/maps/level_1.json")
+	local data = json.decode(jsonstring)
+	local maxI, maxJ = 0,0
+	local StationBlock = nil
+	local mapList = {}
+	for k, configItem in pairs(data.config) do
+		-- pprint(configItem)
+		if BLOCK_TYPES[configItem.type] ~= nil then 
+			local currentI, currentJ = configItem.pos.i + BLOCK_TYPES[configItem.type].width, configItem.pos.j + BLOCK_TYPES[configItem.type].height
+			if maxI < currentI then 
+				maxI = currentI
+			end
+			if maxJ < currentJ then 
+				maxJ = currentJ
+			end
+		end
+	end
+	for k, configItem in pairs(data.config) do
+		if BLOCK_TYPES[configItem.type] ~= nil then
+			-- generate block map
+			local blockMapData = BLOCK_TYPES[configItem.type].blockMap
+			local lx = configItem.pos.i --39
+			local ly = maxJ - configItem.pos.j + 1 -- 76 - 70 = 6
+			if mapList[lx] == nil then 
+				mapList[lx] = {}
+			end
+			-- pprint(blockMapData)
+			for wi = 1, BLOCK_TYPES[configItem.type].width do -- 15
+				for hi = 0, BLOCK_TYPES[configItem.type].height - 1 do -- 6
+					if mapList[lx + wi] == nil then mapList[lx + wi] = {} end
+					local mpListData = 0
+					if blockMapData[hi+1] then 
+						local symb = string.sub(blockMapData[hi+1], wi, wi)
+						-- print('Symbl '..(hi+1)..'-'..(wi)..'-'..(wi)..' of '..blockMapData[hi+1] .. ' is <'..symb .. '> prev is '..string.sub(blockMapData[hi+1], wi-1, wi-1) .. '> next is '..string.sub(blockMapData[hi+1], wi+1, wi+1))
+						if symb == '*' or symb == '1' or symb == '^' then 
+							mpListData = 2
+						end
+					end
+					mapList[lx + wi][ly - hi] = mpListData
+					-- print('Write '..(lx + wi)..'x'..(ly - hi)..' = ' .. mpListData)
+				end
+			end
+
+			local pos = go.get_position()
+			if BLOCK_TYPES[configItem.type].gameObj then
+				coord_x, coord_y = utils:coords_to_screen(configItem.pos.i,  maxJ-configItem.pos.j)
+				coord_x, coord_y = coord_x+(BLOCK_TYPES[configItem.type].width*16 -16), coord_y-(BLOCK_TYPES[configItem.type].height*16 -16)
+				local block_id = factory.create('/StationGenerator#' .. BLOCK_TYPES[configItem.type].gameObj .. '_Factory', vmath.vector3(coord_x, coord_y, 0.5))
+				if configItem.type == 'station' then 
+					msg.post('/PersonGenerator', 'station_placed', {stationPos = vmath.vector3(coord_x, coord_y, 0.5)})
+				end
+			end
+		end
+	end
+	-- pprint(mapList)
+	-- print('Max I = ' .. maxI .. ', Max J = ' .. maxJ)
+	local w = maxI
+	local h = maxJ
+	for ly = 0, h -1  do
+		local printline = ''
+		for lx = 0, w - 1 do
+			local val = 0
+			local sybl = '_'
+			if mapList[lx+1] and mapList[lx+1][ly+1] then 
+				val = mapList[lx+1][ly+1]
+				if val == 2 then 
+					sybl = ' '
+				else
+					sybl = '#'
+				end
+			end
+			LEVEL_MAP[ly * w + lx + 1] = val
+			printline = printline .. sybl
+		end
+		-- print(printline)
+	end
+	map_width = maxI
+	map_height = maxJ
+	allocate = map_width * map_height	
+	-- pprint(data)
+	msg.post('.', 'blocks_generated')
 end
 
 ACTIVE_PLAYER_ID = nil
 
 function setMap()
-	print('Set map size ' .. #LEVEL_MAP)
+	-- print('Set map size ' .. #LEVEL_MAP)
 	-- for i, v in ipairs(LEVEL_MAP) do
 	-- 	local line = ''
 	-- 	for j, val in ipairs(LEVEL_MAP[i]) do
@@ -70,9 +178,9 @@ function calculateWay(self, start_x, start_y, end_x, end_y)
 	if result == astar.SOLVED then
 		print("SOLVED")
 		for i, v in ipairs(path) do
-			print("Tile #" .. i .. ": ", v.x .. "-" .. v.y)
+			-- print("Tile #" .. i .. ": ", v.x .. "-" .. v.y)
 			local posX, posY = utils:coords_to_screen(v.x, v.y)
-			local blockPos = vmath.vector3(posX, posY, 1)
+			local blockPos = vmath.vector3(posX, posY, 0.75)
 			local block_id = factory.create("/BlockSpawner#blockFactoryRed", blockPos)
 			redBLock[#redBLock+1] = block_id
 			ACTIVEPATH = path
@@ -101,12 +209,14 @@ function goByPath(self, dt)
 		local posX, posY = utils:coords_to_screen(ACTIVEPATH[PATHIDEX].x, ACTIVEPATH[PATHIDEX].y)
 		playerPosition.x, playerPosition.y = posX, posY
 		go.set(ACTIVE_PLAYER_ID, 'position', playerPosition)
+		-- msg.post(CAMERA_ID, "shake", { intensity = 0.005, duration = 0.15, direction = "both" })
 	else
 		stepTimer = stepTimer - dt 
 	end
 end
 
 function update(self, dt)
+	-- render_helper.update()
 	if isGoing then 
 		goByPath(self, dt)
 	end
@@ -114,18 +224,28 @@ function update(self, dt)
 	-- Remove this function if not needed
 end
 
+CAMERA_ID = hash('/camera')
 function on_message(self, message_id, message, sender)
 	print('msg received '..message_id);
+	-- render_helper.on_message(self, message_id, message)
 	if message_id == hash("blocks_generated") then 
 		setMap()
+	elseif message_id == hash("player_loaded") then
+		msg.post(CAMERA_ID, camera.MSG_FOLLOW, { target = hash(ACTIVE_PLAYER_ID), lerp = 0.05, horizontal = true, vertical = true, immediate = false })
+	elseif message_id == hash("player_changed") then
+		msg.post(CAMERA_ID, "unfollow")
+		msg.post(CAMERA_ID, camera.MSG_FOLLOW, { target = hash(ACTIVE_PLAYER_ID), lerp = 0.05, horizontal = true, vertical = true, immediate = false })
 	end
 end
 
 function on_input(self, action_id, action)
 	-- if action_id then print('press '.. action_id) end
 	if action_id == hash("touch") and action.pressed and isGoing == false then 
-		print('Touxh ' .. action.x .. ' x ' .. action.y)
-		local posX, posY = utils:screen_to_coords(action.x,action.y)
+		local screenPos = vmath.vector3(action.x, action.y, 1)
+		local worldPos = camera.screen_to_world(CAMERA_ID, screenPos)
+		print('Touxh ' .. action.x .. ' x ' .. action.y .. ' >> '  .. worldPos.x .. ' x ' .. worldPos.y )
+		-- local worldX, worldY = 
+		local posX, posY = utils:screen_to_coords(worldPos.x,worldPos.y)
 		print('Tiles ' .. (posX) .. ' x ' .. (posY))
 		local playerPosition = go.get(ACTIVE_PLAYER_ID, 'position')
 		local startX, startY = utils:screen_to_coords(playerPosition.x,playerPosition.y)
@@ -135,9 +255,13 @@ function on_input(self, action_id, action)
 	elseif action_id == hash("btn_1") and action.pressed and isGoing == false then
 		clearPath(self)
 		ACTIVE_PLAYER_ID = PLAYERS[1]
+		msg.post('.', 'player_changed')
 	elseif action_id == hash("btn_2") and action.pressed and isGoing == false then
 		clearPath(self)
 		ACTIVE_PLAYER_ID = PLAYERS[2]
+		msg.post('.', 'player_changed')
+	elseif message_id == hash("use_projector") then
+		camera.use_projector(CAMERA_ID, PROJECTIONS[self.current_projection].id)
 	end
 end
 

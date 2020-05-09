@@ -1,7 +1,7 @@
 function init(self)
 	-- Add initialization code here
 	-- Remove this function if not needed
-	generateBlocks(self)
+	-- generateBlocks(self)
 end
 
 function generateBlocks(self)

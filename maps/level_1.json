@@ -1,0 +1,4 @@
+{
+  "day_limit": 5,
+  "config":[{"type":"station","pos":{"j":70,"i":39}},{"type":"orange_001_7x7_1x1x1x1","pos":{"j":63,"i":43}},{"type":"orange_004_5x7_1x1x1x0","pos":{"j":63,"i":38}},{"type":"red_011_5x7_0x0x0x1","pos":{"j":63,"i":50}},{"type":"green_009_7x7_1x0x1x0","pos":{"j":56,"i":44}},{"type":"green_010_6x8_0x0x1x0","pos":{"j":48,"i":43}},{"type":"reactor","pos":{"j":51,"i":45}},{"type":"reactor","pos":{"j":51,"i":46}},{"type":"reactor","pos":{"j":52,"i":46}},{"type":"reactor","pos":{"j":52,"i":45}}]
+}

@@ -1,10 +1,10 @@
 embedded_components {
-  id: "sprite_square_001_red"
+  id: "sprite_station"
   type: "sprite"
   data: "tile_set: \"/Assets/background.atlas\"\n"
-  "default_animation: \"Square_001_red\"\n"
+  "default_animation: \"space_station\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
-  "blend_mode: BLEND_MODE_MULT\n"
+  "blend_mode: BLEND_MODE_ALPHA\n"
   ""
   position {
     x: 0.0

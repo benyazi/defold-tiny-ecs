@@ -1,0 +1,207 @@
+{
+  "station": {
+    "type": "station",
+    "width": 15,
+    "height": 6,
+    "sprite": "station_1_back_15x6_1_0_0_0",
+    "gameObj": "Station",
+    "blockMap": [
+      "_____##^##___",
+      "_____#***#___",
+      "_____#***#___",
+      "_____#***#___",
+      "_____#####___",
+    ]
+  },
+  "orange_001_7x7_1x1x1x1": {
+    "type": "orange_7x7_1x1x1x1",
+    "width": 7,
+    "height": 7,
+    "sprite": "type_1_back_7x7_1_1_1_1",
+    "gameObj": "Block_Orange_001",
+    "blockMap": [
+      "__#1#",
+      "_##1##",
+      "##111##",
+      "1111111",
+      "##111##",
+      "_##1##",
+      "__#1#",
+    ]
+  },
+  "orange_002_5x5_1x1x1x1": {
+    "type": "orange_5x5_1x1x1x1",
+    "width": 5,
+    "height": 5,
+    "sprite": "type_2_back_5x5_1_1_1_1",
+    "gameObj": "Block_Orange_002",
+    "blockMap": [
+      "##1##",
+      "#111#",
+      "11111",
+      "#111#",
+      "##1##",
+    ]
+  },
+  "orange_003_5x7_1x1x0x0": {
+    "type": "block_5x7_1",
+    "width": 5,
+    "height": 7,
+    "sprite": "type_3_back_5x7_1_1_0_0",
+    "gameObj": "Block_Orange_003",
+    "blockMap": [
+      "_#1#_",
+      "_#1#_",
+      "#111#",
+      "#1111",
+      "#111#",
+      "#####",
+      "_____"
+    ]
+  },
+  "orange_004_5x7_1x1x1x0": {
+    "type": "block_5x7_2",
+    "width": 5,
+    "height": 7,
+    "sprite": "type_4_back_5x7_1_1_1_0",
+    "gameObj": "Block_Orange_004",
+    "blockMap": [
+      "_____",
+      "#####",
+      "#111#",
+      "#1111",
+      "#111#",
+      "#####",
+      "_____"
+    ]
+  },
+  "red_005_5x8_1x0x1x1": {
+    "type": "block_5x8_1",
+    "width": 5,
+    "height": 8,
+    "sprite": "type_5_back_5x8_1_0_1_1",
+    "gameObj": "Block_Red_002",
+    "blockMap": [
+      "_#1#_",
+      "##1##",
+      "#111#",
+      "#111#",
+      "1111#",
+      "#111#",
+      "##1##",
+      "_#1#_"
+    ]
+  },
+  "red_006_5x7_1x1x0x0": {
+    "type": "block_5x7_3",
+    "width": 5,
+    "height": 7,
+    "sprite": "type_6_back_5x7_1_1_0_0",
+    "gameObj": "Block_Red_001",
+    "blockMap": [
+      "_#1#_",
+      "##1##",
+      "#111#",
+      "#1111",
+      "#111#",
+      "#####",
+      "_____"
+    ]
+  },
+  "orange_007_5x8_1x1x1x0": {
+    "type": "block_5x8_3",
+    "width": 5,
+    "height": 8,
+    "sprite": "type_7_back_5x8_1_1_1_0",
+    "blockMap": [
+      "_#1#_",
+      "##1##",
+      "#111#",
+      "#111#",
+      "1111#",
+      "#111#",
+      "#####",
+      "_____"
+    ]
+  },
+  "green_008_7x7_0x1x0x1": {
+    "type": "green_01",
+    "width": 7,
+    "height": 7,
+    "gameObj": "Block_Green_001",
+    "sprite": "type_8_back_7x7_0_1_0_1",
+    "blockMap": [
+      "_______",
+      "#######",
+      "#11111#",
+      "1111111",
+      "#11111#",
+      "#######",
+      "_______"
+    ]
+  },
+  "green_009_7x7_1x0x1x0": {
+    "type": "green_02",
+    "width": 5,
+    "height": 7,
+    "gameObj": "Block_Green_002",
+    "sprite": "type_9_back_5x7_1_0_1_0",
+    "blockMap": [
+      "_#1#_",
+      "##1##",
+      "#111#",
+      "#111#",
+      "#111#",
+      "##1##",
+      "_#1#_"
+    ]
+  },
+  "green_010_6x8_0x0x1x0": {
+    "type": "green_03",
+    "width": 6,
+    "height": 8,
+    "sprite": "green_03",
+    "gameObj": "Block_Green_003",
+    "blockMap": [
+      "______",
+      "######",
+      "#1111#",
+      "#1111#",
+      "#1111#",
+      "#1111#",
+      "###1##",
+      "__#1#_"
+    ]
+  },
+  "red_011_5x7_0x0x0x1": {
+    "type": "red_03",
+    "width": 5,
+    "height": 7,
+    "sprite": "red_03",
+    "gameObj": "Block_Red_003",
+    "blockMap": [
+      "_____",
+      "#####",
+      "#111#",
+      "1111#",
+      "#111#",
+      "#####",
+      "_____"
+    ]
+  },
+  "orange_012_7x7_0x1x1x1": {
+    "type": "orange_06",
+    "width": 7,
+    "height": 7,
+    "sprite": "orange_06",
+    "blockMap": [
+      "_______",
+      "_#####_",
+      "##111##",
+      "1111111",
+      "##111##",
+      "_##1##_",
+      "__#1#__"
+    ]
+  }
+}

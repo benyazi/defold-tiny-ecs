@@ -1,0 +1,39 @@
+
+local camera = require "orthographic.camera"
+
+function init(self)
+	-- self.window_width, self.window_height = window.get_size()
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	-- local pos = go.get_position()
+	-- local screenPos = vmath.vector3(0, 0, pos.z)
+	-- local worldPos = camera.screen_to_world(CAMERA_ID, screenPos)
+	-- local ww,wh = camera.get_display_size()
+	-- worldPos.x = worldPos.x + ww/2
+	-- worldPos.y = worldPos.y + wh/2
+	local pos = go.get(CAMERA_ID, 'position')
+	pos.z = -0.5
+	go.set_position(pos)
+	-- pprint(worldPos)
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	-- Remove this function if not needed
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

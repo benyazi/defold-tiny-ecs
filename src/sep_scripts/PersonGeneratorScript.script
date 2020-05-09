@@ -1,19 +1,21 @@
 function init(self)
 	-- Add initialization code here
 	-- Remove this function if not needed
-	generatePersons(self)
 end
 
 PLAYERS = {}
-function generatePersons(self)
+function generatePersons(self, stationPos)
 	local pos = go.get_position()
-	pos.x = pos.x + 32
+	pos.x = stationPos.x - 32
+	pos.y = stationPos.y + 16
+	pos.z = 1
 	local block_id = factory.create("#VittorFactory", pos)
 	ACTIVE_PLAYER_ID = block_id
 	PLAYERS[1] = block_id
-	pos.x = pos.x + 32
+	pos.x = pos.x + 64
 	block_id = factory.create("#GrandpaFactory", pos)
 	PLAYERS[2] = block_id
+	msg.post('/levelManagerObj#LevelManager', 'player_loaded')
 end
 
 function final(self)
@@ -27,8 +29,9 @@ function update(self, dt)
 end
 
 function on_message(self, message_id, message, sender)
-	-- Add message-handling code here
-	-- Remove this function if not needed
+	if message_id == hash('station_placed') then
+		generatePersons(self, message.stationPos)
+	end
 end
 
 function on_input(self, action_id, action)
