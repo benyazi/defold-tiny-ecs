@@ -1,0 +1,2 @@
+prototype: "/main/GameObjects/Other/Reactor.go"
+load_dynamically: false

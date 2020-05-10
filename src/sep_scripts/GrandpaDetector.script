@@ -1,0 +1,37 @@
+function init(self)
+	msg.post(".", "acquire_input_focus")
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	-- Add update code here
+	-- Remove this function if not needed
+end
+local ACTIVE_REACTORS = {}
+function on_message(self, message_id, message, sender)
+	if message_id == hash('trigger_response') then
+		if message.enter then 
+			ACTIVE_REACTORS[message.other_id] = message.other_id
+		else
+			ACTIVE_REACTORS[message.other_id] = nil
+		end	
+	end
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash('person_action') and action.pressed then 
+		for k, reactorId in pairs(ACTIVE_REACTORS) do
+			print('Send msg to reactor')
+			msg.post(reactorId, "grandpa_repair")
+		end
+	end
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

@@ -14,6 +14,13 @@ local PROJECTIONS = {
 	{ name = "Fixed Zoom", id = camera.PROJECTOR.FIXED_ZOOM },
 }
 
+local OXYGEN = {
+	current = 100,
+	max = 100,
+	perstep = 1
+}
+
+local STATION_MAP_DATA = {}
 function init(self)
 	self.current_projection = 1
 	self.bounds_enabled = false
@@ -119,18 +126,16 @@ function loadLevel(self)
 	msg.post('.', 'blocks_generated')
 end
 
+function stepOxygen(self)
+	OXYGEN.current = OXYGEN.current-OXYGEN.perstep
+	msg.post('/levelManagerObj#levelGui', 'update_oxygen_level', {oxygen = OXYGEN})	
+end
+
 ACTIVE_PLAYER_ID = nil
 
 function setMap()
-	-- print('Set map size ' .. #LEVEL_MAP)
-	-- for i, v in ipairs(LEVEL_MAP) do
-	-- 	local line = ''
-	-- 	for j, val in ipairs(LEVEL_MAP[i]) do
-	-- 		line = line .. '-' .. val
-	-- 	end
-	-- 	print('Line '.. i .. ' > ' .. line)
-	-- end
 	astar.setup(map_width, map_height, direction, allocate, typical_adjacent, cache)
+	STATION_MAP_DATA = LEVEL_MAP
 	astar.set_map(LEVEL_MAP)
 	local costs = {
 		[1] = {
@@ -183,8 +188,8 @@ function calculateWay(self, start_x, start_y, end_x, end_y)
 			local blockPos = vmath.vector3(posX, posY, 0.75)
 			local block_id = factory.create("/BlockSpawner#blockFactoryRed", blockPos)
 			redBLock[#redBLock+1] = block_id
-			ACTIVEPATH = path
 		end
+		ACTIVEPATH = path
 	elseif result == astar.NO_SOLUTION then
 		print("NO_SOLUTION")
 	elseif result == astar.START_END_SAME then
@@ -203,16 +208,32 @@ function goByPath(self, dt)
 		if ACTIVEPATH[PATHIDEX] == nil then 
 			isGoing = false
 			clearPath(self)
+			msg.post('.', 'update_positions')
 			return
 		end
 		local playerPosition = go.get(ACTIVE_PLAYER_ID, 'position')
 		local posX, posY = utils:coords_to_screen(ACTIVEPATH[PATHIDEX].x, ACTIVEPATH[PATHIDEX].y)
 		playerPosition.x, playerPosition.y = posX, posY
 		go.set(ACTIVE_PLAYER_ID, 'position', playerPosition)
+		stepOxygen(self)
 		-- msg.post(CAMERA_ID, "shake", { intensity = 0.005, duration = 0.15, direction = "both" })
 	else
 		stepTimer = stepTimer - dt 
 	end
+end
+
+function shallowcopy(orig)
+	local orig_type = type(orig)
+	local copy
+	if orig_type == 'table' then
+		copy = {}
+		for orig_key, orig_value in pairs(orig) do
+			copy[orig_key] = orig_value
+		end
+	else -- number, string, boolean, etc
+		copy = orig
+	end
+	return copy
 end
 
 function update(self, dt)
@@ -226,16 +247,73 @@ end
 
 CAMERA_ID = hash('/camera')
 function on_message(self, message_id, message, sender)
-	print('msg received '..message_id);
+	print('msg received '..message_id)
 	-- render_helper.on_message(self, message_id, message)
 	if message_id == hash("blocks_generated") then 
 		setMap()
+		placeReactors(self)
+		placeBloops(self)
+	elseif message_id == hash("bloop_dead") then
+		local bloopId = message.id
+		for k, curId in pairs(BLOOPS) do
+			if curId == bloopId then 
+				BLOOPS[k] = nil
+			end
+		end		
+		msg.post('#', "update_positions")
+	elseif message_id == hash("update_positions") then
+		local newMap = shallowcopy(STATION_MAP_DATA)
+		for k, playerId in pairs(PLAYERS) do
+			local playerPosition = go.get(playerId, 'position')
+			local startX, startY = utils:screen_to_coords(playerPosition.x,playerPosition.y)
+			-- print("Update position " .. startX ..'x' .. startY .. '. Set 0');
+			newMap[startY * map_width + startX + 1] = 0
+			-- local 
+		end
+		for k, reactorId in pairs(REACTORS) do
+			local reactorPosition = go.get(reactorId, 'position')
+			local startX, startY = utils:screen_to_coords(reactorPosition.x,reactorPosition.y)
+			newMap[startY * map_width + startX + 1] = 0
+		end
+		for k, reactorId in pairs(BLOOPS) do
+			local reactorPosition = go.get(reactorId, 'position')
+			if reactorPosition then 
+			local startX, startY = utils:screen_to_coords(reactorPosition.x,reactorPosition.y)
+				newMap[startY * map_width + startX + 1] = 0
+			end
+		end
+		-- local printLine = ''
+		-- for k, v in pairs(newMap) do
+		-- 	printLine = printLine .. v
+		-- 	if math.fmod(k, map_width) == 0 then
+		-- 		print(math.floor(k/map_width) .. ')' .. printLine)
+		-- 		printLine = ''
+		-- 	end
+		-- end
+		astar.set_map(newMap)
 	elseif message_id == hash("player_loaded") then
 		msg.post(CAMERA_ID, camera.MSG_FOLLOW, { target = hash(ACTIVE_PLAYER_ID), lerp = 0.05, horizontal = true, vertical = true, immediate = false })
+		msg.post('.', 'update_positions')
 	elseif message_id == hash("player_changed") then
 		msg.post(CAMERA_ID, "unfollow")
 		msg.post(CAMERA_ID, camera.MSG_FOLLOW, { target = hash(ACTIVE_PLAYER_ID), lerp = 0.05, horizontal = true, vertical = true, immediate = false })
 	end
+end
+
+REACTORS = {}
+function placeReactors(self)
+	local posX, posY = utils:coords_to_screen(47, 9)
+	local blockPos = vmath.vector3(posX, posY, 0.75)
+	local block_id = factory.create("/ReactorFactory#ReactorFactory", blockPos)
+	REACTORS[#REACTORS] = block_id
+end
+
+BLOOPS = {}
+function placeBloops(self)
+	local posX, posY = utils:coords_to_screen(45, 9)
+	local blockPos = vmath.vector3(posX, posY, 0.75)
+	local block_id = factory.create("/ReactorFactory#BloopFactory", blockPos)
+	BLOOPS[#BLOOPS] = block_id
 end
 
 function on_input(self, action_id, action)
@@ -246,20 +324,28 @@ function on_input(self, action_id, action)
 		print('Touxh ' .. action.x .. ' x ' .. action.y .. ' >> '  .. worldPos.x .. ' x ' .. worldPos.y )
 		-- local worldX, worldY = 
 		local posX, posY = utils:screen_to_coords(worldPos.x,worldPos.y)
-		print('Tiles ' .. (posX) .. ' x ' .. (posY))
-		local playerPosition = go.get(ACTIVE_PLAYER_ID, 'position')
-		local startX, startY = utils:screen_to_coords(playerPosition.x,playerPosition.y)
-		calculateWay(self, startX, startY, posX, posY)
+		if ACTIVEPATH and posX == ACTIVEPATH[#ACTIVEPATH].x and posY == ACTIVEPATH[#ACTIVEPATH].y then 
+			isGoing = true
+		else
+			print('Tiles ' .. (posX) .. ' x ' .. (posY))
+			local playerPosition = go.get(ACTIVE_PLAYER_ID, 'position')
+			local startX, startY = utils:screen_to_coords(playerPosition.x,playerPosition.y)
+			calculateWay(self, startX, startY, posX, posY)
+		end
 	elseif action_id == hash("go_btn") and action.pressed and isGoing == false and ACTIVEPATH then
 		isGoing = true
 	elseif action_id == hash("btn_1") and action.pressed and isGoing == false then
 		clearPath(self)
+		msg.post(ACTIVE_PLAYER_ID, 'set_player_unactive')
 		ACTIVE_PLAYER_ID = PLAYERS[1]
 		msg.post('.', 'player_changed')
+		msg.post(ACTIVE_PLAYER_ID, 'set_player_active')
 	elseif action_id == hash("btn_2") and action.pressed and isGoing == false then
 		clearPath(self)
+		msg.post(ACTIVE_PLAYER_ID, 'set_player_unactive')
 		ACTIVE_PLAYER_ID = PLAYERS[2]
 		msg.post('.', 'player_changed')
+		msg.post(ACTIVE_PLAYER_ID, 'set_player_active')
 	elseif message_id == hash("use_projector") then
 		camera.use_projector(CAMERA_ID, PROJECTIONS[self.current_projection].id)
 	end

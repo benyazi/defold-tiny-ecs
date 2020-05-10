@@ -8,14 +8,16 @@ shared_state = 1
 [display]
 width = 640
 height = 336
+high_dpi = 1
 
 [android]
 input_method = HiddenInputField
 
 [project]
-title = TestOne
+title = Poornafts
 dependencies = https://github.com/britzl/defold-metrics/archive/master.zip,https://github.com/britzl/defold-orthographic/archive/master.zip,https://github.com/selimanac/defold-random/archive/master.zip,https://github.com/selimanac/defold-astar/archive/master.zip
 custom_resources = maps/
+version = 0.01
 
 [sprite]
 max_count = 512

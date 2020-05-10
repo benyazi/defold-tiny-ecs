@@ -4,11 +4,7 @@ key_trigger {
 }
 key_trigger {
   input: KEY_SPACE
-  action: "space_trigger"
-}
-key_trigger {
-  input: KEY_SPACE
-  action: "go_btn"
+  action: "person_action"
 }
 key_trigger {
   input: KEY_1

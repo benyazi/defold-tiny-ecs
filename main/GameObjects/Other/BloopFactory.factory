@@ -1,0 +1,2 @@
+prototype: "/main/GameObjects/Other/Bloop.go"
+load_dynamically: false

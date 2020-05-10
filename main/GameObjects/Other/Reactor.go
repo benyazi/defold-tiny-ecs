@@ -1,21 +1,6 @@
 components {
-  id: "PersonObjectScript"
-  component: "/src/sep_scripts/PersonObjectScript.script"
-  position {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-}
-components {
-  id: "VittorDetector"
-  component: "/src/sep_scripts/persons/VittorDetector.script"
+  id: "ReactorMain"
+  component: "/src/sep_scripts/reactors/ReactorMain.script"
   position {
     x: 0.0
     y: 0.0
@@ -31,8 +16,8 @@ components {
 embedded_components {
   id: "sprite"
   type: "sprite"
-  data: "tile_set: \"/Assets/Persons.atlas\"\n"
-  "default_animation: \"Vittor_idle\"\n"
+  data: "tile_set: \"/Assets/OtherObjects.atlas\"\n"
+  "default_animation: \"reactor_destroyed\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
   "blend_mode: BLEND_MODE_ALPHA\n"
   ""
@@ -49,35 +34,15 @@ embedded_components {
   }
 }
 embedded_components {
-  id: "shadow_idle"
-  type: "sprite"
-  data: "tile_set: \"/Assets/Persons.atlas\"\n"
-  "default_animation: \"person_shadow_idle\"\n"
-  "material: \"/builtins/materials/sprite.material\"\n"
-  "blend_mode: BLEND_MODE_ALPHA\n"
-  ""
-  position {
-    x: 0.0
-    y: 16.0
-    z: -0.01
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-}
-embedded_components {
-  id: "vittor_detector"
+  id: "reactor_collider"
   type: "collisionobject"
   data: "collision_shape: \"\"\n"
   "type: COLLISION_OBJECT_TYPE_TRIGGER\n"
   "mass: 0.0\n"
   "friction: 0.1\n"
   "restitution: 0.5\n"
-  "group: \"Vittor_detector\"\n"
-  "mask: \"Bloop\"\n"
+  "group: \"Reactor\"\n"
+  "mask: \"Grandpa_detector\"\n"
   "embedded_collision_shape {\n"
   "  shapes {\n"
   "    shape_type: TYPE_BOX\n"
@@ -95,8 +60,8 @@ embedded_components {
   "    index: 0\n"
   "    count: 3\n"
   "  }\n"
-  "  data: 48.0\n"
-  "  data: 48.0\n"
+  "  data: 16.0\n"
+  "  data: 16.0\n"
   "  data: 10.0\n"
   "}\n"
   "linear_damping: 0.0\n"

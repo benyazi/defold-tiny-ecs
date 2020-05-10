@@ -1,0 +1,38 @@
+function init(self)
+	msg.post(".", "acquire_input_focus")
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	-- Add update code here
+	-- Remove this function if not needed
+end
+local ACTIVE_BLOOPS = {}
+function on_message(self, message_id, message, sender)
+	if message_id == hash('trigger_response') then
+		if message.enter then 
+			ACTIVE_BLOOPS[message.other_id] = message.other_id
+		else
+			ACTIVE_BLOOPS[message.other_id] = nil
+		end	
+	end
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash('person_action') and action.pressed then 
+		for k, bloopId in pairs(ACTIVE_BLOOPS) do
+			print('Send msg to bloop')
+			msg.post(bloopId, "vittor_damage")
+			-- ACTIVE_BLOOPS[k] = nil
+		end
+	end
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

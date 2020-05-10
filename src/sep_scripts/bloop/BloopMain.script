@@ -14,8 +14,18 @@ function update(self, dt)
 end
 
 function on_message(self, message_id, message, sender)
-	if message_id == hash('s') then 
+	if message_id == hash('vittor_damage') then
+		print('Vittor action damage')
+		dead(self)
 	end
+	-- Add message-handling code here
+	-- Remove this function if not needed
+end
+
+function dead(self)
+	local pos = go.get_position()
+	msg.post('/levelManagerObj#LevelManager', 'bloop_dead', {id = go.get_id(), bloopY = pos.y, bloopX = pos.x})
+	go.delete()
 end
 
 function on_input(self, action_id, action)
